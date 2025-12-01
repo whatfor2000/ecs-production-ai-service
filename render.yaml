@@ -4,7 +4,7 @@ services:
     env: docker
     plan: free
     branch: main
-    repo: https://github.com/your-repo/your-project # Update this
+    repo: https://github.com/whatfor2000/ecs-production-ai-service # Update this
     rootDir: AIService
     envVars:
       - key: OPENAI_API_KEY
