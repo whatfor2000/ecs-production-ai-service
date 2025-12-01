@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: aiservice
+    env: docker
+    plan: free
+    branch: main
+    repo: https://github.com/your-repo/your-project # Update this
+    rootDir: AIService
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+    autoDeploy: true
