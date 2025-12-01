@@ -5,7 +5,7 @@ services:
     plan: free
     branch: main
     repo: https://github.com/whatfor2000/ecs-production-ai-service # Update this
-    rootDir: AIService
+    rootDir: ecs-production-ai-service
     envVars:
       - key: OPENAI_API_KEY
         sync: false
