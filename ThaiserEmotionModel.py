@@ -2,6 +2,8 @@ import torch
 from transformers import AutoConfig, AutoFeatureExtractor, AutoModelForAudioClassification
 import librosa
 import numpy as np
+import gc
+
 def load_model_for_ser(model_name="awghuku/wav2vec2-base-thai-ser"):
     """
     Load the Thai Speech Emotion Recognition model and feature extractor
@@ -15,6 +17,12 @@ def load_model_for_ser(model_name="awghuku/wav2vec2-base-thai-ser"):
     
     # Load model for audio classification
     model = AutoModelForAudioClassification.from_pretrained(model_name)
+    
+    # Quantize model to reduce memory usage
+    print("Quantizing Emotion model...")
+    model = torch.quantization.quantize_dynamic(
+        model, {torch.nn.Linear}, dtype=torch.qint8
+    )
     
     return model, feature_extractor, config
 
@@ -54,6 +62,10 @@ def Thaiser(audio_file):
     model_name = "awghuku/wav2vec2-base-thai-ser"
     # audio_file = "/uploads/recorded_audio.mp3"  # Replace with your audio file path
     
+    model = None
+    feature_extractor = None
+    config = None
+    
     try:
         # Load model, feature extractor and config
         print("Loading model and feature extractor...")
@@ -71,6 +83,7 @@ def Thaiser(audio_file):
         print("\nConfidence scores:")
         for emotion, score in result['confidence_scores'].items():
             print(f"{emotion}: {score:.4f}")
+            
         return {
             "emotion": result['emotion'],
             "confidence_scores": result['confidence_scores']
@@ -82,6 +95,18 @@ def Thaiser(audio_file):
         print("2. Check your internet connection")
         print("3. Ensure you have sufficient disk space")
         print("4. Verify the audio file exists and is a valid format")
-
-
-
+        return {
+            "emotion": "unknown",
+            "confidence_scores": {}
+        }
+    finally:
+        # Cleanup to free memory
+        print("Cleaning up Emotion model...")
+        if model is not None:
+            del model
+        if feature_extractor is not None:
+            del feature_extractor
+        if config is not None:
+            del config
+            
+        gc.collect()
